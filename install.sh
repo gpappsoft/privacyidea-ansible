@@ -34,7 +34,7 @@ cat <<EOF
 EOF
 
 # Extract payload
-PAYLOAD_LINE=`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' $BDIR/$0`
+PAYLOAD_LINE=`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' $0`
 tail -n+$PAYLOAD_LINE $BDIR/$0 |  tar xz -C ~ &> /dev/null
 
 # Start installation
