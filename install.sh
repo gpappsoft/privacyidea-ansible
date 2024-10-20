@@ -4,7 +4,6 @@
 # (c)2024 Marco Moenig 
 
 
-BDIR=$(pwd)
 HST=$(hostname -A | cut -f1 -d ' ')
 ANSIBLE_CORE=2.17.5
 ANSIBLE=10.5.0
@@ -35,7 +34,7 @@ EOF
 
 # Extract payload
 PAYLOAD_LINE=`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' $0`
-tail -n+$PAYLOAD_LINE $BDIR/$0 |  tar xz -C ~ &> /dev/null
+tail -n+$PAYLOAD_LINE $0 |  tar xz -C ~ &> /dev/null
 
 # Start installation
 cd ~/privacyidea/
