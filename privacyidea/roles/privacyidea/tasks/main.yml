@@ -1,0 +1,224 @@
+---
+- name: Disable timers for unattended upgrade, so that none will be triggered by the `date -s` call.
+  raw: systemctl disable --now {{ aptvar }}
+  with_items:
+    - 'apt-daily.timer'
+    - 'apt-daily-upgrade.timer'
+  loop_control:
+    loop_var: aptvar
+  tags: always
+
+- name: Reload systemctl daemon to apply the new changes
+  raw: systemctl daemon-reload
+  tags: always
+
+- name: Wait for any possibly running unattended upgrade to finish
+  raw: systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" --wait /bin/true
+  tags: always
+
+- name: Purge unattended upgrades
+  raw: apt-get -y purge unattended-upgrades    
+  tags: always
+
+- name: Add Docke-CE key
+  block:
+    - name: Addign Docker repository key
+      get_url:
+        url:  https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/trusted.gpg.d/DockerCE.asc
+
+    - name: Adding Docker-CE repository
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/DockerCE.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: dockerce
+  tags: ['always']
+  
+- name: Update Package Cache (apt)
+  apt:
+    update_cache: yes
+  changed_when: false
+  tags: always
+
+- name: Install basic OS tools 
+  package:
+    name: 
+      - net-tools 
+      - httpie 
+      - vim
+      - jq
+      - rsync
+      - gpg
+      - uidmap
+      - dbus-user-session
+      - rootlesskit
+    state: present
+  tags: always
+
+- name: Install Docker-CE
+  package:
+    name: 
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io 
+      - docker-buildx-plugin 
+      - docker-compose-plugin
+    state: present
+  tags: always
+
+- name: set unpriviliged ports
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_unprivileged_port_start
+    value: '0'
+    state: present
+  tags: always
+
+- name: Set current username as fact
+  become: no
+  set_fact:
+      pi_user: "{{ lookup('env', 'USER') }}"
+  tags: always
+
+- name: Set current home path as fact
+  become: no
+  set_fact:
+      pi_home: "{{ lookup('env', 'HOME') }}"
+  tags: always
+
+- name: Ensure group "docker" exists
+  group:
+    name: docker
+    state: present
+  tags: always
+
+- name: Adding existing user '{{ pi_user }}' to group docker
+  user:
+    name: '{{ pi_user }}'
+    groups: docker
+    append: yes
+  tags: always
+
+- name: Create directory for privacyidea docker files
+  become: no
+  file:
+    path: "{{ pi_home }}/{{ item }}"
+    state: directory
+    mode: '0750'
+  with_items:
+  - "{{ pidockerdir }}"
+  - "{{ pidockerdir }}/templates"
+  - "{{ pidockerdir }}/scripts"
+  tags: always
+
+- name: Copy docker files
+  become: no
+  copy:
+    src: "roles/privacyidea/files/{{ item }}"
+    dest: "{{ pi_home }}/{{ pidockerdir }}"
+    owner: "{{ pi_user }}"
+    mode: '0644'
+  with_items:
+  - "docker-compose.yaml"
+  - "environment.env"
+  tags: always  
+
+- name: Copy templates
+  become: no
+  copy:
+    src: "roles/privacyidea/files/templates/{{ item }}"
+    dest: "{{ pi_home }}/{{ pidockerdir }}/templates/"
+    owner: "{{ pi_user }}"
+    mode: '0644'
+  with_items:
+  - "resolver.json"
+  - "clients.conf"
+  - "nginx_default.conf.template"
+  - "nginx.conf"
+  tags: always
+
+- name: Create new secret
+  become: no
+  shell: (cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+  register: pi_secret
+  tags: always
+
+- name: Create new pepper
+  become: no
+  shell: (cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+  register: pi_pepper
+  tags: always
+
+- name: Create new password for database user pi
+  become: no
+  shell: (cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+  register: db_password
+  tags: always
+
+- name: Create new password for admin
+  shell: (cat /dev/urandom | tr -dc 'a-zA-Z0-9$!%' | fold -w 16| head -n1)
+  register: admin_password
+  tags: always
+
+- name: Set new secrets in environment file
+  lineinfile:
+    path: "{{ pi_home }}/{{ pidockerdir }}/environment.env"
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value}}"
+  with_items: 
+  - key: PI_PEPPER
+    value: "{{ pi_pepper.stdout_lines[0] }}"
+  - key: PI_SECRET
+    value: "{{ pi_secret.stdout_lines[0] }}"
+  - key: DB_PASSWORD
+    value: "{{ db_password.stdout_lines[0] }}"
+  - key: PI_ADMIN_PASS
+    value: '"{{ admin_password.stdout_lines[0] }}"'
+  tags: always
+
+# TODO: enckey
+
+- name: Check if certificate already exists
+  stat:
+    path: "{{ pi_home }}/{{ pidockerdir }}/templates/pi.pem"
+  register: cert_result
+  tags: always
+  
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
+    path: "{{ pi_home }}/{{ pidockerdir }}/templates/pi.key"
+  when: not cert_result.stat.exists
+
+- name: Create simple self-signed certificate
+  community.crypto.x509_certificate:
+    path: "{{ pi_home }}/{{ pidockerdir }}/templates/pi.pem"
+    privatekey_path: "{{ pi_home }}/{{ pidockerdir }}/templates/pi.key"
+    provider: selfsigned
+  when: not cert_result.stat.exists
+  tags: always
+
+- name: Tear down existing privacyIDEA stack
+  community.docker.docker_compose_v2:
+    project_src: "/home/{{ pi_user }}/{{ pidockerdir }}/"
+    env_files: "/home/{{ pi_user }}/{{ pidockerdir }}/environment.env"
+    services:
+     - db
+     - privacyidea
+     - reverse_proxy
+     - freeradius
+    state: absent
+  tags: always
+
+- name: Create and start privacyIDEA stack
+  community.docker.docker_compose_v2:
+    project_src: "/home/{{ pi_user }}/{{ pidockerdir }}/"
+    env_files: "/home/{{ pi_user }}/{{ pidockerdir }}/environment.env"
+    pull: missing
+    recreate: always
+    services:
+     - db
+     - privacyidea
+     - reverse_proxy
+     - freeradius
+  register: output
+  tags: always

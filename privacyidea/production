@@ -1,0 +1,12 @@
+[all:vars]
+####################
+## 
+# ansible_user=privacy
+##
+####################
+
+### USE FQDN NAMES HERE! ###
+
+# hosts for privacyIDEA application 
+[privacyidea]
+localhost ansible_connection=local
