@@ -15,10 +15,11 @@ git clone https://github.com/gpappsoft/privacyidea-ansible.git
 cd privacyidea-ansible
 # create install.sh with PAYLOAD in /tmp
 tar czvf /tmp/privacyidea.tgz privacyidea
-cat bootpi /tmp/privacyidea.tgz > /tmp/install.sh
+cat install.sh /tmp/privacyidea.tgz > /tmp/install.sh
+chmod +x /tmp/install.sh
 ```
 
-Copy ```/tmp/install.sh```to target host.
+Run ```/tmp/install.sh``` directly on the target host or copy ```/tmp/install.sh```to target host.
 
 #### Install
 On target host run and install privacyIDEA. User needs ```sudo``` permissions.
