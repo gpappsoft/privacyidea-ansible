@@ -8,6 +8,7 @@ Easy deploy a privacyIDEA stack with container from [privacyidea-docker](https:/
 #### Requirements
 
 A fresh Ubuntu 22.04 or (better) Ubuntu 24.04 LTS Base (or minimal) installation.
+**Do not install Docker snap-in. The ansible role will install Docker-CE from official Docker repository.**
 
 #### Setup
 ```
