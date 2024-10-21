@@ -15,21 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Compress action step
-        uses: a7ul/tar-action@v1.1.0
-        id: compress
-        with:
-          command: c
-          files: |
-            ./privacyidea
-          outPath:  privacyidea.tgz
-      
+        run: tar cvzf privacyidea.tgz ./privacyidea
+          
       - name: Add payload to install.sh
         id: add-payload
-        run: cat install.sh privacyidea.tgz >> install_pi.sh
+        run: cat install.sh privacyidea.tgz >> /install_pi.sh
 
       - uses: actions/upload-artifact@v4    
         with:
           name: install.sh
-          path: install_pi.sh
+          path: /install_pi.sh
+          compression-level: 0
 
     
