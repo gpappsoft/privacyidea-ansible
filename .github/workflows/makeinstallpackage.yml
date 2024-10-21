@@ -1,0 +1,35 @@
+name: makeinstallpackage
+
+on: 
+  release:
+    types: [prereleased,released]
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compress action step
+        uses: a7ul/tar-action@v1.1.0
+        id: compress
+        with:
+          command: c
+          files: |
+            ./privacyidea
+          outPath:  privacyidea.tgz
+      
+      - name: Add payload to install.sh
+        id: add-payload
+        run: cat install.sh privacyidea.tgz >> install_pi.sh
+
+      - uses: actions/upload-artifact@v4    
+        with:
+          name: install.sh
+          path: install_pi.sh
+
+    
