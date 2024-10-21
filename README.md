@@ -7,7 +7,7 @@ Easy deploy a privacyIDEA stack with container from [privacyidea-docker](https:/
 
 #### Requirements
 
-A fresh Ubuntu 22.04 Base (or minimal) installation.
+A fresh Ubuntu 22.04 or (better) Ubuntu 24.04 LTS Base (or minimal) installation.
 
 #### Setup
 ```
@@ -22,7 +22,7 @@ chmod +x /tmp/install.sh
 Run ```/tmp/install.sh``` directly on the target host or copy ```/tmp/install.sh```to target host.
 
 #### Install
-On target host run and install privacyIDEA. User needs ```sudo``` permissions.
+On target host run installer to install a privacyIDEA stack. User needs ```sudo``` permissions.
 
 ```
 chmod +x install.sh
@@ -31,9 +31,23 @@ chmod +x install.sh
 
 Check ```environment.env``` file after installing for privacyIDEA-WebUI admin password (Username: **admin**)
 
+#### Manual deployment with ansible
+
+```
+python3 -m venv ~/privacyidea-ansible
+source ~/privacyidea-ansible/bin/activate 
+pip3 install -q  ansible-core==2.17.5 ansible==10.5.0
+```
+Run ansible playbook
+
+```
+cd ~/privacyidea-ansible/privacyidea
+ansible-playbook -i production site.yml -b
+```
+
 #### Bugs/TODOs:
  - secrets, passwords  will be overwritten if running again (work in progress)
- - only **Ubuntu** (24.04) supported at the moment
+ - only **Ubuntu** (22.04/24.04) supported at the moment
  - not really tested at the moment
 
 #### Disclaimer
