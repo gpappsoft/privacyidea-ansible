@@ -45,7 +45,9 @@ cat <<EOF
 EOF
 
 # sudo hwclock --hctosys # only for testing with VM snapshots
-sudo NEEDRESTART_MODE=a apt-get -U -q=2 -y install python3-venv sshpass vim git
+sudo NEEDRESTART_MODE=a apt-get -q=2 -y update
+sudo NEEDRESTART_MODE=a apt-get -q=2 -y install python3-venv sshpass vim git 
+
 python3 -m venv ~/privacyidea && cd ~/privacyidea && source bin/activate && pip3 install -q  ansible-core==$ANSIBLE_CORE ansible==$ANSIBLE
 
 cat <<EOF
