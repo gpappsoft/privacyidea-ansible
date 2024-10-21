@@ -13,6 +13,13 @@ jobs:
       id-token: write
       
     steps:
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.ANSIBLETOKEN }}
+
       - uses: actions/checkout@v4
       - name: Compress action step
         run: tar cvzf privacyidea.tgz ./privacyidea
@@ -26,5 +33,14 @@ jobs:
           name: install.sh
           path: /install_pi.sh
           compression-level: 0
-
+      
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
     
