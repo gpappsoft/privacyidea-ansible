@@ -26,12 +26,12 @@ jobs:
           
       - name: Add payload to install.sh
         id: add-payload
-        run: cat install.sh privacyidea.tgz >> /install_pi.sh
+        run: cat install.sh privacyidea.tgz >> install_pi.sh
 
       - uses: actions/upload-artifact@v4    
         with:
           name: install.sh
-          path: /install_pi.sh
+          path: install_pi.sh
           compression-level: 0
       
       - name: Build and push Docker image
