@@ -1,5 +1,10 @@
 ### default variables
 pidockerdir: "container"
 
-
+dockerservices:
+    - db
+    - privacyidea
+    - reverse_proxy
+    - freeradius
+    - openldap
 

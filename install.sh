@@ -7,7 +7,7 @@
 HST=$(hostname -A | cut -f1 -d ' ')
 ANSIBLE_CORE=2.17.5
 ANSIBLE=10.5.0
-#DEBUG="-vv"
+#DEBUG="-vv" # Enable to debug ansible
 set +o history
 clear
 
@@ -82,5 +82,8 @@ cat <<EOF
 EOF
 
 set -o history
+# switch group to prevent logout/login....
+exec newgrp docker
+exec newgrp -
 exit 0
 __PAYLOAD_BELOW__
