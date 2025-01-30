@@ -38,7 +38,7 @@ The stack contains:
 - NGINX as a reverse proxy
 - OpenLDAP (optional)
 
-Check ```environment.env``` file after installing for privacyIDEA-WebUI admin password (Username: **admin**)
+Check ```container/environment.env``` file after installing for privacyIDEA-WebUI admin password (Username: **admin**)
 
 Access to WebUI via HTTPS (443)
 
