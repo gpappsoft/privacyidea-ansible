@@ -40,7 +40,7 @@ The stack contains:
 
 Check ```container/environment.env``` file after installing for privacyIDEA-WebUI admin password (Username: **admin**)
 
-Access to WebUI via HTTPS (443)
+Access to WebUI via HTTPS (8443)
 
 #### How to configure
 
