@@ -57,7 +57,7 @@ cat <<EOF
 #########################################
 EOF
 
-ansible-playbook $DEBUG -i production site.yml -b
+ansible-playbook $DEBUG -i production site.yml -b > /dev/null
 
 cat <<EOF
 
