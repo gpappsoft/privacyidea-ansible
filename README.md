@@ -16,7 +16,7 @@ Download and copy ```install.sh``` from the release page to the target host and 
 
 ```
 chmod +x install.sh
-./install.sh
+sudo ./install.sh
 ```
 or build and run your installer on the target host:
 ```
@@ -26,7 +26,7 @@ cd privacyidea-ansible
 tar czvf /tmp/privacyidea.tgz privacyidea
 cat install.sh /tmp/privacyidea.tgz > /tmp/install.sh
 chmod +x /tmp/install.sh
-/tmp/installer.sh
+sudo /tmp/installer.sh
 ```
 
 #### privacyIDEA stack
