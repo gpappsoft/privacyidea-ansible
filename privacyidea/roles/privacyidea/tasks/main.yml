@@ -108,7 +108,6 @@
     pi_secret: "{{ lookup('ansible.builtin.password', '/dev/null', length=32, chars=['ascii_letters', 'digits']) }}"
     pi_pepper: "{{ lookup('ansible.builtin.password', '/dev/null', length=32, chars=['ascii_letters', 'digits']) }}"
     db_password: "{{ lookup('ansible.builtin.password', '/dev/null', length=32, chars=['ascii_letters', 'digits']) }}"
-    admin_password: "{{ lookup('ansible.builtin.password', '/dev/null', length=32, chars=['ascii_letters', 'digits']) }}"
   tags: always
 
 - name: Generate privacyIDEA enckey
@@ -129,8 +128,6 @@
     value: "{{ pi_secret }}"
   - key: DB_PASSWORD
     value: "{{ db_password }}"
-  - key: PI_ADMIN_PASS
-    value: "{{ admin_password }}"
   - key: PI_ENCKEY
     value: "{{ enckey_result.stdout }}"
   tags: always
@@ -157,16 +154,19 @@
 
 - name: Tear down existing privacyIDEA stack
   community.docker.docker_compose_v2:
-    project_src: "/home/{{ pi_user }}/{{ pidockerdir }}/"
-    env_files: "/home/{{ pi_user }}/{{ pidockerdir }}/environment.env"
+    project_src: "{{ pi_home }}/{{ pidockerdir }}/"
+    env_files: "{{ pi_home }}/{{ pidockerdir }}/environment.env"
     services: "{{ dockerservices }}"
     state: absent
   tags: always
 
 - name: Create and start privacyIDEA stack
   community.docker.docker_compose_v2:
-    project_src: "/home/{{ pi_user }}/{{ pidockerdir }}/"
-    env_files: "/home/{{ pi_user }}/{{ pidockerdir }}/environment.env"
+    project_src: "{{ pi_home }}/{{ pidockerdir }}/"
+    env_files: "{{ pi_home }}/{{ pidockerdir }}/environment.env"
+    profiles: 
+      - stack
+      - radius 
     pull: missing
     recreate: always
     services: "{{ dockerservices }}"

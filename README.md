@@ -26,7 +26,7 @@ cd privacyidea-ansible
 tar czvf /tmp/privacyidea.tgz privacyidea
 cat install.sh /tmp/privacyidea.tgz > /tmp/install.sh
 chmod +x /tmp/install.sh
-./tmp/installer.sh
+/tmp/installer.sh
 ```
 
 #### privacyIDEA stack
@@ -47,7 +47,7 @@ Access to WebUI via HTTPS (8443)
 - Use the ```privacyidea/roles/privacyidea/files/environment.env``` file to configure the stack. 
 - Set service for the stack in ```privacyidea/group_vars/allprivacyidea/group_vars/all```
 
-**SECRET, PEPPER, DB_PASSWORD**, **ENCKEY** and **PI_ADMIN_PASS** will be generated on the first run by the ansible role.  
+**SECRET, PEPPER, DB_PASSWORD, ENCKEY** will be generated on the first run by the ansible role.  
 
 #### Manual deployment with ansible
 
@@ -63,9 +63,6 @@ cd ~/privacyidea-ansible/privacyidea
 ansible-playbook -i production site.yml -b
 ```
 To run on multiple hosts or on a remote host, adjust the ```production``` inventory
-
-#### Bugs/TODOs:
- - Only **Ubuntu** (22.04/24.04) supported at the moment
 
 #### Disclaimer
 

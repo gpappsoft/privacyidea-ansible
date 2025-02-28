@@ -40,7 +40,7 @@
   changed_when: false
   tags: always
 
-- name: Install basic OS tools 
+- name: Install OS tools and Docker CE
   package:
     name: 
       - net-tools 
@@ -52,12 +52,6 @@
       - uidmap
       - dbus-user-session
       - rootlesskit
-    state: present
-  tags: always
-
-- name: Install Docker-CE
-  package:
-    name: 
       - docker-ce 
       - docker-ce-cli 
       - containerd.io 
@@ -65,3 +59,5 @@
       - docker-compose-plugin
     state: present
   tags: always
+
+

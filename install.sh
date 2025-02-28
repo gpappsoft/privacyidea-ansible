@@ -57,28 +57,24 @@ cat <<EOF
 #########################################
 EOF
 
-ansible-playbook $DEBUG -i production site.yml -b > /dev/null
+ansible-playbook $DEBUG -i production site.yml -b 
 
 cat <<EOF
 
 #########################################
 # privacyidea installation successfully #
 #########################################
-EOF
-echo -n "Cleaning up ..."
 
+
+EOF
 cd ~
 deactivate
 rm -rf privacyidea
-echo " done"
-echo
-echo "Start privacyidea..."
+source container/environment.env
 
 cat <<EOF
-
-#########################################
-# privacyidea installation successfully #
-#########################################
+Access to privacyIDEA: https://localhost:$PROXY_PORT
+username / password:  $PI_ADMIN / $PI_ADMIN_PASS
 EOF
 
 set -o history
