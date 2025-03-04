@@ -49,8 +49,12 @@ Access to WebUI via HTTPS (8443)
 
 **SECRET, PEPPER, DB_PASSWORD, ENCKEY** will be generated on the first run by the ansible role.  
 
-#### Manual deployment with ansible
+---
+#### Alternative method: manual deployment with ansible 
 
+Instead using the ```installer.sh``` method, described above, the ansible playbook can be used manually. 
+
+Example:
 ```
 python3 -m venv ~/privacyidea-ansible
 source ~/privacyidea-ansible/bin/activate 
